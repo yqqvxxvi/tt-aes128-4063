@@ -57,7 +57,7 @@ async def wait_done(dut):
         await RisingEdge(dut.clk)
         if (int(dut.uo_out.value) >> 2) & 1:
             return
-    raise cocotb.result.TestFailure("done never asserted")
+    assert False, "done never asserted"
 
 
 async def read_ct(dut):
@@ -75,7 +75,7 @@ async def read_ct(dut):
 @cocotb.test()
 async def test_aes128(dut):
     dut._log.info("start")
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
 
     # reset
     dut.ena.value = 1

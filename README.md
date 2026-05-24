@@ -1,42 +1,53 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+# Tiny Tapeout submission - AES-128 (group SecondChip)
 
-# Tiny Tapeout Verilog Project Template
+This folder is the Tiny Tapeout version of the AES-128 project. It is self-contained:
+the synthesizable RTL lives in `src/`, the cocotb test in `test/`, the datasheet in
+`docs/`, and the project metadata in `info.yaml`.
 
-- [Read the documentation for project](docs/info.md)
+```
+tinytapeout/
+├── info.yaml          # TT project metadata + pinout (top_module: tt_um_aes128_secondchip)
+├── src/               # synthesizable RTL (copied from repo root; no testbench, no key_expansion.v)
+│   ├── tt_um_aes128_secondchip.v   # bit-serial wrapper (TT top)
+│   ├── aes_core_otf.v              # iterative core, on-the-fly key schedule
+│   ├── sbox.v  subbytes.v  shiftrows.v  mixcolumns.v  addroundkey.v
+├── test/              # cocotb test (RTL + gate-level)
+│   ├── Makefile  tb.v  test.py  requirements.txt
+└── docs/
+    └── info.md        # datasheet (how it works / how to test / pinout)
+```
 
-## What is Tiny Tapeout?
+## Turning this into a hardened TT submission
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+The GDS hardening flow and the GitHub Actions workflows are maintained by Tiny Tapeout in
+their template repo, so do **not** copy them by hand. Instead:
 
-To learn more and get started, visit https://tinytapeout.com.
+1. Create a new repo from the current Tiny Tapeout Verilog template
+   (https://tinytapeout.com/hdl/ -> "HDL templates" -> use the template for the open
+   shuttle). This gives you `.github/workflows/` (the `gds`, `test` and `docs` actions).
+2. Replace the template's `src/`, `test/`, `docs/info.md` and `info.yaml` with the files
+   from this folder.
+3. Push. The **GDS GitHub Action** runs OpenLane and produces the backend evidence:
+   gate-level netlist, GDS, layout PNG, and utilization/timing reports (downloadable from
+   the Actions run artifacts and rendered on the project's GitHub Pages).
+4. The **test action** runs `test/test.py` against the RTL and, after hardening, the
+   gate-level netlist.
 
-## Set up your Verilog project
+## Tile size
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+`info.yaml` requests `2x2` tiles as a starting point. AES-128 is S-box dominated
+(16 S-boxes in the datapath + 4 in the key schedule). If the first GDS run reports high
+utilization or routing congestion, increase `tiles` (e.g. `3x2`, `4x2`) and re-run.
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+## Local test (optional)
 
-## Enable GitHub actions to build the results page
+With cocotb + Icarus Verilog installed:
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+```
+cd test
+make            # RTL simulation
+make GATES=yes  # gate-level (needs the hardened netlist + sky130 PDK)
+```
 
-## Resources
-
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+The same functionality is also verified in ModelSim at the repo root via
+`tb/tb_tt_um_aes128.v` (all 20 NIST vectors, bit-serial end-to-end).

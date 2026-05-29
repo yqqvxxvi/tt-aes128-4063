@@ -41,9 +41,31 @@ module aes_core_baseline (
         .round_key_flat (round_key_flat)
     );
 
-    wire [127:0] rk0     = round_key_flat[0*128 +: 128];   // K0 for INIT_ARK
-    wire [127:0] rk_cur  = round_key_flat[round_cnt*128 +: 128]; // K1..K9 for MAIN
-    wire [127:0] rk_last = round_key_flat[10*128 +: 128];  // K10 for FINAL
+    wire [127:0] rk0     = round_key_flat[0*128    +: 128]; // K0  for INIT_ARK
+    wire [127:0] rk_last = round_key_flat[10*128   +: 128]; // K10 for FINAL_ROUND
+
+    // K_{round_cnt} for MAIN_ROUND. Explicit case (not a variable part-select)
+    // so Yosys generates only a clean 11-way mux -- a variable part-select
+    // with a 4-bit index on an 11-slot bus would create 5 out-of-range mux
+    // inputs that synthesise to floating nets and break OpenROAD detailed
+    // placement (RSZ-0020 / DPL-0036).
+    reg [127:0] rk_cur;
+    always @(*) begin
+        case (round_cnt)
+            4'd0:  rk_cur = round_key_flat[0    +: 128];
+            4'd1:  rk_cur = round_key_flat[128  +: 128];
+            4'd2:  rk_cur = round_key_flat[256  +: 128];
+            4'd3:  rk_cur = round_key_flat[384  +: 128];
+            4'd4:  rk_cur = round_key_flat[512  +: 128];
+            4'd5:  rk_cur = round_key_flat[640  +: 128];
+            4'd6:  rk_cur = round_key_flat[768  +: 128];
+            4'd7:  rk_cur = round_key_flat[896  +: 128];
+            4'd8:  rk_cur = round_key_flat[1024 +: 128];
+            4'd9:  rk_cur = round_key_flat[1152 +: 128];
+            4'd10: rk_cur = round_key_flat[1280 +: 128];
+            default: rk_cur = 128'd0;
+        endcase
+    end
 
     // ---- round datapath (combinational) ----
     wire [127:0] sb_out, sr_out, mc_out;

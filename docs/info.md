@@ -4,21 +4,23 @@ This file is used to generate your project datasheet. Please fill in the informa
 
 ## How it works
 
-This project is an **AES-128 encryption accelerator**. It implements the full AES-128
-encryption algorithm (the initial AddRoundKey, 9 main rounds of
-SubBytes / ShiftRows / MixColumns / AddRoundKey, and a final round without MixColumns)
-as an **iterative one-round-per-cycle** datapath, so the round logic is reused across
-cycles. Encryption of one 128-bit block takes 11 clock cycles once the data is loaded.
+This project is an **AES-128 encryption accelerator** (baseline variant). It implements the full
+AES-128 encryption algorithm (initial AddRoundKey, 9 main rounds of
+SubBytes / ShiftRows / MixColumns / AddRoundKey, and a final round without MixColumns) as an
+**iterative one-round-per-cycle** datapath. Encryption of one 128-bit block takes 11 clock cycles
+once the data is loaded.
 
-The round keys are produced by an **on-the-fly key schedule**: instead of pre-computing
-all 11 round keys, a single 128-bit round-key register is advanced by one round each cycle
-(RotWord -> SubWord -> Rcon -> XOR chain), using only 4 S-boxes. This keeps the silicon
-area small.
+This is the **baseline (unoptimised) version**: all 11 round keys are produced by a single
+**combinational key-expansion block** (`key_expansion_flat`) that derives every round key directly
+from the input key. It uses about 40 S-box instances for the key schedule on top of the
+16 datapath S-boxes, so the silicon area is large. The optimised counterpart
+(`tt_um_aes128_secondchip`, on-the-fly key schedule) uses only 4 key-schedule S-boxes; the
+two designs share the same bit-serial interface so they can be compared directly.
 
-AES-128 needs 256 input bits (128-bit key + 128-bit plaintext) and produces 128 output
-bits, but Tiny Tapeout only provides 8 input / 8 output / 8 bidirectional pins. So the
-core is wrapped in a **bit-serial interface**: the key and plaintext are shifted in one
-bit at a time, and the ciphertext is shifted out one bit at a time.
+AES-128 needs 256 input bits (128-bit key + 128-bit plaintext) and produces 128 output bits, but
+Tiny Tapeout only provides 8 input / 8 output / 8 bidirectional pins. So the core is wrapped in a
+**bit-serial interface**: the key and plaintext are shifted in one bit at a time, and the
+ciphertext is shifted out one bit at a time.
 
 ### Interface
 

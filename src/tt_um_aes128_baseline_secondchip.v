@@ -1,11 +1,14 @@
 // =============================================================
-// tt_um_aes128_secondchip.v
+// tt_um_aes128_baseline_secondchip.v
 // Tiny Tapeout top-level wrapper (group: SecondChip).
 //
 // Tiny Tapeout exposes only 8 dedicated inputs, 8 dedicated
 // outputs and 8 bidirectional pins. AES-128 needs 256 input bits
 // (key + plaintext) and 128 output bits, so this wrapper
-// serializes them BIT-SERIALLY around the aes_core_otf core.
+// serializes them BIT-SERIALLY around the aes_core_baseline core
+// (combinational all-round-keys schedule -- the unoptimised baseline,
+//  paired with tt_um_aes128_secondchip / aes_core_otf for the rubric
+//  chip-area comparison).
 //
 // Pin map
 //   ui_in[0]  serial_in   data bit, shifted in while load_en=1
@@ -21,7 +24,7 @@
 //   after 256 load clocks: in_sr[255:128]=key, in_sr[127:0]=plaintext
 // Read order (MSB first): 128 ciphertext bits, ct[127] first.
 // =============================================================
-module tt_um_aes128_secondchip (
+module tt_um_aes128_baseline_secondchip (
     input  wire [7:0] ui_in,    // dedicated inputs
     output wire [7:0] uo_out,   // dedicated outputs
     input  wire [7:0] uio_in,   // bidirectional input path  (unused)
@@ -58,7 +61,7 @@ module tt_um_aes128_secondchip (
     // ---- AES core (on-the-fly key schedule) ----
     wire         core_busy, core_done;
     wire [127:0] core_ct;
-    aes_top u_core (
+    aes_core_baseline u_core (
         .clk        (clk),
         .rst        (rst),
         .start      (core_start),

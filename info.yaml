@@ -1,15 +1,16 @@
 project:
-  title:        "AES-128 Encryption Accelerator (bit-serial)"
+  title:        "AES-128 Encryption Accelerator (baseline, bit-serial)"
   author:       "SecondChip"
   discord:      ""
-  description:  "Iterative AES-128 encryption core with on-the-fly key expansion and a bit-serial load/readout interface"
+  description:  "Baseline AES-128: iterative core with combinational all-round-keys schedule, bit-serial load/readout (unoptimised counterpart of tt_um_aes128_secondchip)"
   language:     "Verilog"
   clock_hz:     50000000
-  tiles: "6x2"
-  top_module:  "tt_um_aes128_secondchip"
+  tiles: "8x2"
+  top_module:  "tt_um_aes128_baseline_secondchip"
   source_files:
-    - "tt_um_aes128_secondchip.v"
-    - "aes_top.v"
+    - "tt_um_aes128_baseline_secondchip.v"
+    - "aes_core_baseline.v"
+    - "key_expansion_flat.v"
     - "sbox.v"
     - "subbytes.v"
     - "shiftrows.v"

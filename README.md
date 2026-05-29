@@ -1,6 +1,6 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout submission - AES-128 (group SecondChip)
+# Tiny Tapeout submission - AES-128 (group SecondChip) 
 
 Tiny Tapeout version of the AES-128 project. The synthesizable RTL is in `src/`, the cocotb
 test in `test/`, the datasheet in `docs/`, and the project metadata in `info.yaml`. These are

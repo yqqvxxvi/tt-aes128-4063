@@ -106,9 +106,12 @@ module key_expansion_flat (
         rotword = {w[23:0], w[31:24]};
     endfunction
 
-    integer i, rcon_idx;
+    integer i;
     reg [31:0] W [0:43];
 
+    // Note: rcon index inlined as (i/4) to avoid Verilator LATCH warning
+    // (an intermediate 'rcon_idx' assigned in only one branch of the if
+    //  would be flagged as a combinational latch).
     always @(*) begin
         W[0] = key[127:96];
         W[1] = key[95:64];
@@ -117,8 +120,7 @@ module key_expansion_flat (
 
         for (i = 4; i < 44; i = i + 1) begin
             if (i % 4 == 0) begin
-                rcon_idx = i / 4;
-                W[i] = W[i-4] ^ subword(rotword(W[i-1])) ^ {rcon(rcon_idx), 24'h000000};
+                W[i] = W[i-4] ^ subword(rotword(W[i-1])) ^ {rcon(i / 4), 24'h000000};
             end else begin
                 W[i] = W[i-4] ^ W[i-1];
             end

@@ -9,7 +9,7 @@ project:
   top_module:  "tt_um_aes128_secondchip"
   source_files:
     - "tt_um_aes128_secondchip.v"
-    - "aes_core_otf.v"
+    - "aes_top.v"
     - "sbox.v"
     - "subbytes.v"
     - "shiftrows.v"

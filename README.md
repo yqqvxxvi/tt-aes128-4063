@@ -1,4 +1,6 @@
-# Tiny Tapeout submission - AES-128 BASELINE (group SecondChip)
+![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+
+# Tiny Tapeout submission - AES-128 (group SecondChip) 
 
 This is the **baseline (unoptimised)** Tiny Tapeout variant of the AES-128 project: same
 bit-serial interface and same datapath as `tinytapeout/` (the optimised on-the-fly version),

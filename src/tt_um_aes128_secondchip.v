@@ -58,7 +58,7 @@ module tt_um_aes128_secondchip (
     // ---- AES core (on-the-fly key schedule) ----
     wire         core_busy, core_done;
     wire [127:0] core_ct;
-    aes_core_otf u_core (
+    aes_top u_core (
         .clk        (clk),
         .rst        (rst),
         .start      (core_start),

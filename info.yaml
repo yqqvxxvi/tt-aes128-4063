@@ -4,7 +4,7 @@ project:
   discord:      ""
   description:  "Baseline AES-128: iterative core with combinational all-round-keys schedule, bit-serial load/readout (unoptimised counterpart of tt_um_aes128_secondchip)"
   language:     "Verilog"
-  clock_hz:     50000000
+  clock_hz:     25000000
   tiles: "8x2"
   top_module:  "tt_um_aes128_baseline_secondchip"
   source_files:
